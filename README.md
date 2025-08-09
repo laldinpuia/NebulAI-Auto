@@ -2,8 +2,9 @@
 
 [![NebulAI](./assets/logo.png)](https://bit.ly/nebulai_opencompute)
 
-**Created by DiPY™ for the blockchain development community**
-**🔗 Experience NebulAI:** [https://nebulai.network/opencompute](https://nebulai.network/opencompute?invite_by=pebcoG)
+**Created by [DiPY™](https://x.com/BlockClaimed) for the blockchain development community**
+
+**🔗 Experience NebulAI:** [bit.ly/nebulai_opencompute](https://bit.ly/nebulai_opencompute)
 
 ## 🚨 LEGAL DISCLAIMER 🚨
 
@@ -26,14 +27,25 @@ This suite provides a comprehensive solution for automating NebulAI mining opera
 - Token management utilities
 - Multi-token concurrent mining
 
-## Files Included
+## 📦 Files Included
 
-- **`nebulai_miner.py`** - Main automation script with adaptive rate limiting
-- **`monitor.py`** - Real-time terminal dashboard
-- **`token_utility.py`** - JWT token management tool
-- **`.env`** - Environment configuration (create from template)
-- **`tokens.txt`** - JWT token storage
-- **`requirements.txt`** - Python dependencies
+### 🎯 **Core Components**
+- **`nebulai_miner.py`** - Main automation script with adaptive rate limiting and error recovery
+- **`monitor.py`** - Real-time terminal dashboard with live performance metrics
+- **`token_utility.py`** - JWT token management tool for validation and cleanup
+- **`health_check.py`** - Pre-flight system validation and connectivity testing
+
+### 🛠 **Setup & Installation**
+- **`installer.sh`** - One-click automated installer for Unix/Linux/macOS systems
+- **`installer.bat`** - Windows PowerShell automated installer and setup script
+- **`requirements.txt`** - Python dependencies with version specifications
+
+### ⚙️ **Configuration Files**
+- **`.env`** - Secure environment configuration for private keys and settings
+- **`tokens.txt`** - Encrypted JWT token storage (one token per line)
+
+### 📚 **Documentation**
+- **`README.md`** - Complete setup guide, documentation, and legal disclaimers
 
 ## Quick Start
 
@@ -55,13 +67,17 @@ pip install -r requirements.txt
 
 ### 3. Configuration
 ```bash
-# Create environment file
-cp .env.template .env
+# Create your environment configuration file
+nano .env  # or use your preferred editor
+```
 
-# Edit .env with your Solana private key
+**Required Environment Variables (.env file):**
+```env
 SOLANA_PRIVATE_KEY=your_actual_private_key_here
 LOG_LEVEL=INFO
 TOKEN_REFRESH_HOURS=23
+ENCRYPTION_ENABLED=true
+MONITORING_PORT=8080
 ```
 
 ### 4. Add Tokens
@@ -107,11 +123,12 @@ python token_utility.py decode --token "eyJ..."
 - **File Permissions**: Automatic restriction of sensitive files
 - **No Hardcoded Secrets**: All credentials externally configured
 
-Set secure file permissions:
+**Secure File Permissions (Unix/Linux/Mac only):**
 ```bash
 chmod 600 .env
 chmod 600 .token_encryption_key
 ```
+*Windows users can skip this step - file permissions are handled automatically.*
 
 ## Architecture
 
