@@ -131,7 +131,7 @@ Monitor your mining operations with the built-in dashboard:
 python monitor.py
 ```
 
-![Mining Monitor](./assets/mining_monitor.png)
+![Mining Monitor](./assets/monitoring.png)
 
 The monitor displays:
 - Overall mining statistics and uptime
@@ -156,7 +156,7 @@ python token_utility.py add --token "eyJ..."
 python token_utility.py decode --token "eyJ..."
 ```
 
-![Token Analysis](./assets/token_analysis.png)
+![Token Analysis](./assets/token_utility.png)
 
 The token utility provides:
 - Token validity verification
