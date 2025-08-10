@@ -8,6 +8,47 @@
 
 **🔗 Experience NebulAI:** [NebulAI Open Compute](https://bit.ly/nebulai_opencompute)
 
+---
+
+## 💝 Support the Project
+
+> **"Great software is built by passionate developers, sustained by generous communities."**
+
+If this mining automation suite has helped streamline your operations or provided educational value, consider supporting its continued development. Your contribution, no matter the size, helps maintain and improve this project for the entire community.
+
+### 🎯 **Why Your Support Matters**
+- 🔧 **Continuous Updates** - Keep the script compatible with platform changes
+- 🛡️ **Security Enhancements** - Maintain robust protection mechanisms  
+- 📚 **Documentation** - Expand guides and troubleshooting resources
+- 🚀 **New Features** - Develop additional mining utilities and tools
+
+### 💎 **Donation Addresses**
+
+<div align="center">
+
+| 🌐 **Network** | 📮 **Address** |
+|:---:|:---|
+| **Ethereum & EVM Chains** 🔷 | `0x828F40DcCD14FAd59F7dCfb5C57F3642Ec37f89f` |
+| **Solana** ⚡ | `A87ukCk5U7qgsAQiWGxGQuHzJyq2oX2BQDavjWCy589r` |
+
+</div>
+
+### 🙏 **Alternative Ways to Support**
+- ⭐ **Star this repository** to increase visibility
+- 🍴 **Fork and contribute** improvements or bug fixes  
+- 📢 **Share** with fellow developers and miners
+- 💬 **Report issues** to help improve stability
+
+<div align="center">
+
+**Every contribution fuels innovation. Thank you for being part of this journey! 🚀**
+
+*Built with ❤️ by [DiPY™](https://x.com/BlockClaimed) for the blockchain community*
+
+</div>
+
+---
+
 ## 🚨 LEGAL DISCLAIMER 🚨
 
 **THIS SOFTWARE VIOLATES NEBULAI'S TERMS OF SERVICE**
