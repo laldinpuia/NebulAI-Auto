@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-NebulAI Mining Script with Automatic JWT Token Refresh
+NebulAI Mining Script with Automatic JWT Token Refresh & Enhanced Logging
 WARNING: This script is for EDUCATIONAL PURPOSES ONLY.
 Using automation with NebulAI violates their Terms of Service and may result in account termination.
 """
@@ -22,38 +22,170 @@ from cryptography.fernet import Fernet
 from dotenv import load_dotenv
 import jwt
 from pathlib import Path
+from colorama import Fore, Back, Style, init
+import colorama
+
+# Initialize colorama for Windows/Linux compatibility
+colorama.init(autoreset=True)
+
+class MiningStats:
+    """Global statistics tracker for mining operations"""
+    def __init__(self):
+        self.session_start = time.time()
+        self.tasks_completed = 0
+        self.tasks_failed = 0
+        self.active_tokens = 0
+        self.total_hash_power = 0
+        self.last_stats_display = 0
+        
+    def get_runtime(self) -> str:
+        """Get formatted runtime"""
+        elapsed = time.time() - self.session_start
+        hours = int(elapsed // 3600)
+        minutes = int((elapsed % 3600) // 60)
+        seconds = int(elapsed % 60)
+        return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+    
+    def get_success_rate(self) -> float:
+        """Calculate success rate percentage"""
+        total = self.tasks_completed + self.tasks_failed
+        return (self.tasks_completed / total * 100) if total > 0 else 0
+    
+    def log_stats(self):
+        """Display real-time mining statistics"""
+        success_rate = self.get_success_rate()
+        runtime = self.get_runtime()
+        
+        print(f"\n{Fore.CYAN}{'='*60}")
+        print(f"{Fore.YELLOW}⚡ MINING DASHBOARD ⚡")
+        print(f"{Fore.CYAN}{'='*60}")
+        print(f"{Fore.GREEN}🕐 Runtime: {runtime}")
+        print(f"{Fore.GREEN}🎯 Active Tokens: {self.active_tokens}")
+        print(f"{Fore.GREEN}✅ Tasks Completed: {self.tasks_completed}")
+        print(f"{Fore.RED}❌ Tasks Failed: {self.tasks_failed}")
+        print(f"{Fore.YELLOW}📊 Success Rate: {success_rate:.1f}%")
+        print(f"{Fore.MAGENTA}⚡ Hash Power: {self.total_hash_power:.2f} MH/s")
+        print(f"{Fore.CYAN}{'='*60}\n")
+
+# Global stats instance
+stats = MiningStats()
+
+def print_header():
+    print(f"""
+{Fore.CYAN}🚀 NebulAI Mining Script v2.0.1{Style.RESET_ALL}
+{Fore.CYAN}========================================================{Style.RESET_ALL}
+
+
+{Fore.GREEN}██████╗  ██  ██████╗ ██╗   ██╗   ████████╗███╗   ███╗{Style.RESET_ALL}
+{Fore.GREEN}██╔══██╗ ╔═╗ ██╔══██╗╚██╗ ██╔╝   ╚══██╔══╝████╗ ████║{Style.RESET_ALL}
+{Fore.GREEN}██║  ██║ ██║ ██████╔╝ ╚████╔╝       ██║   ██║╚██╔╝██║{Style.RESET_ALL}
+{Fore.GREEN}██║  ██║ ██║ ██╔═══╝   ╚██╔╝        ██║   ██║ ╚═╝ ██║{Style.RESET_ALL}
+{Fore.GREEN}██║  ██║ ██║ ██║        ██║         ╚═╝   ╚═╝     ╚═╝{Style.RESET_ALL}
+{Fore.GREEN}██████╔╝ ██║ ██║        ██║           			     {Style.RESET_ALL}
+{Fore.GREEN}╚═════╝  ╚═╝ ╚═╝        ╚═╝						     {Style.RESET_ALL}  
+
+{Fore.YELLOW}               Created by DiPY™                     {Style.RESET_ALL}
+   
+{Fore.CYAN}========================================================{Style.RESET_ALL}
+""")
+
+def print_mining_header():
+    """Display mining operation start header"""
+    print(f"{Fore.GREEN}🚀 {Style.BRIGHT}INITIALIZING MINING OPERATIONS...")
+    print(f"{Fore.YELLOW}⚠️  {Style.BRIGHT}WARNING: This script violates NebulAI ToS - Use at your own risk!")
+    print(f"{Fore.CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+
+def print_mining_footer():
+    """Display mining operation end footer"""
+    print(f"\n{Fore.CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    print(f"{Fore.YELLOW}⛔ {Style.BRIGHT}MINING OPERATIONS TERMINATED")
+    print(f"{Fore.GREEN}💎 NebulAI Miner - DiPY™")
+    stats.log_stats()
+    print(f"{Fore.CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+
+class ColoredFormatter(logging.Formatter):
+    """Custom colored formatter for mining operations"""
+    
+    # Mining-themed icons and colors
+    FORMATS = {
+        logging.DEBUG: f"{Fore.LIGHTBLACK_EX}🔍 [DEBUG] %(message)s",
+        logging.INFO: f"{Fore.GREEN}⚡ [INFO] %(message)s", 
+        logging.WARNING: f"{Fore.YELLOW}⚠️  [WARN] %(message)s",
+        logging.ERROR: f"{Fore.RED}❌ [ERROR] %(message)s",
+        logging.CRITICAL: f"{Fore.RED}{Back.WHITE}💥 [CRITICAL] %(message)s"
+    }
+
+    def format(self, record):
+        # Add timestamp
+        timestamp = datetime.now().strftime('%H:%M:%S')
+        
+        # Get the appropriate format
+        log_fmt = self.FORMATS.get(record.levelno)
+        formatter = logging.Formatter(f"{Fore.CYAN}[{timestamp}] {log_fmt}{Style.RESET_ALL}")
+        
+        # Format the message with mining context
+        original_msg = record.getMessage()
+        
+        # Enhance specific message types
+        if "Task received" in original_msg:
+            record.msg = f"📥 New mining task acquired - {original_msg.split('Task received')[1]}"
+        elif "Results accepted" in original_msg:
+            record.msg = f"✅ Mining reward earned - {original_msg.split('Results accepted')[1]}"
+            stats.tasks_completed += 1
+        elif "Results rejected" in original_msg:
+            record.msg = f"❌ Mining task failed - {original_msg.split('Results rejected')[1]}"
+            stats.tasks_failed += 1
+        elif "Starting worker" in original_msg:
+            record.msg = f"🚀 Mining rig online - {original_msg.split('Starting worker')[1]}"
+        elif "Token refreshed" in original_msg:
+            record.msg = f"🔄 Authentication renewed - Token updated successfully"
+        elif "Fetch error" in original_msg:
+            record.msg = f"🌐 Network issue - {original_msg.split('Fetch error')[1]}"
+        
+        return formatter.format(record)
 
 # ===============================
 # WARNING: TERMS OF SERVICE VIOLATION
 # ===============================
-print("""
-⚠️  CRITICAL WARNING ⚠️
-This script violates NebulAI's Terms of Service which explicitly prohibit:
+print_header()
+print(f"""
+{Fore.RED}{Style.BRIGHT}⚠️  CRITICAL WARNING ⚠️{Style.RESET_ALL}
+{Fore.YELLOW}This script violates NebulAI's Terms of Service which explicitly prohibit:
 - Automation attempts
-- Multiple accounts
+- Multiple accounts  
 - Gaming the mining system
 
-Using this script may result in:
+{Fore.RED}Using this script may result in:
 - Permanent account suspension
 - Loss of all accumulated rewards
 - Legal action for ToS violation
 
-Proceed at your own risk!
+{Fore.CYAN}Proceed at your own risk!{Style.RESET_ALL}
 """)
 
 # Load environment variables
 load_dotenv()
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('nebulai_miner.log'),
-        logging.StreamHandler()
-    ]
+# Configure enhanced logging
+logger = logging.getLogger('NebulAI_Miner')
+logger.setLevel(logging.INFO)
+
+# Remove existing handlers
+for handler in logger.handlers[:]:
+    logger.removeHandler(handler)
+
+# Console handler with colors
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(ColoredFormatter())
+logger.addHandler(console_handler)
+
+# File handler for persistent logs
+file_handler = logging.FileHandler('nebulai_mining.log')
+file_formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger(__name__)
+file_handler.setFormatter(file_formatter)
+logger.addHandler(file_handler)
 
 class SecureTokenManager:
     """Manages JWT tokens with automatic refresh and secure storage"""
@@ -253,22 +385,22 @@ class NebulAIMiner:
                     data = await resp.json()
                     
                     if data.get("code") == 0:
-                        logger.info(f"[📥] Task received for {token[:8]}... (size: {data['data']['matrix_size']})")
+                        logger.info(f"Task received for token {token[:8]}... (matrix size: {data['data']['matrix_size']})")
                         self.consecutive_failures[token] = 0
                         return data['data'], True
                     elif resp.status == 401:
-                        logger.warning(f"[🔑] Authentication failed for {token[:8]}... - token may be expired")
+                        logger.warning(f"Authentication failed for token {token[:8]}... - token may be expired")
                         return None, False
                     else:
-                        logger.warning(f"[⚠️] Unexpected response for {token[:8]}...: {data}")
+                        logger.warning(f"Unexpected response for token {token[:8]}...: {data}")
                         
                     if attempt < 2:
                         await asyncio.sleep(2 ** attempt)  # Exponential backoff
                         
             except asyncio.TimeoutError:
-                logger.warning(f"[⏱️] Timeout fetching task for {token[:8]}... (attempt {attempt + 1})")
+                logger.warning(f"Timeout fetching task for token {token[:8]}... (attempt {attempt + 1})")
             except Exception as e:
-                logger.error(f"[❌] Fetch error for {token[:8]}...: {str(e)}")
+                logger.error(f"Fetch error for token {token[:8]}...: {str(e)}")
                 
             if attempt < 2:
                 await asyncio.sleep(2 ** attempt)
@@ -292,17 +424,17 @@ class NebulAIMiner:
                     data = await resp.json()
                     
                     if data.get("code") == 0 and data.get("data", {}).get("calc_status", False):
-                        logger.info(f"[✅] Results accepted for {token[:8]}...")
+                        logger.info(f"Results accepted for token {token[:8]}...")
                         self._update_stats(token, True)
                         return True
                     else:
-                        logger.warning(f"[❌] Results rejected for {token[:8]}...: {data}")
+                        logger.warning(f"Results rejected for token {token[:8]}...: {data}")
                         
                     if attempt < 2:
                         await asyncio.sleep(2 ** attempt)
                         
             except Exception as e:
-                logger.error(f"[❌] Submit error for {token[:8]}...: {str(e)}")
+                logger.error(f"Submit error for token {token[:8]}...: {str(e)}")
                 
             if attempt < 2:
                 await asyncio.sleep(2 ** attempt)
@@ -337,10 +469,13 @@ class NebulAIMiner:
             result_1 = t0 / f
             result_2 = f / (t1 - t0) if (t1 - t0) != 0 else 0
             
+            # Update hash power stats
+            stats.total_hash_power = f / 1000000  # Convert to MH/s
+            
             return result_1, result_2
             
         except Exception as e:
-            logger.error(f"[❌] Computation error: {str(e)}")
+            logger.error(f"Computation error: {str(e)}")
             return None
 
     def _update_stats(self, token: str, success: bool):
@@ -356,26 +491,26 @@ class NebulAIMiner:
 
     async def worker_loop(self, token: str):
         """Main worker loop for a single token"""
-        logger.info(f"[🚀] Starting worker for token {token[:8]}...")
+        logger.info(f"Starting worker for token {token[:8]}...")
         
         async with aiohttp.ClientSession() as session:
             while True:
                 try:
                     # Check if token needs refresh
                     if self.token_manager.is_token_expired(token):
-                        logger.info(f"[🔄] Token {token[:8]}... needs refresh")
+                        logger.info(f"Token {token[:8]}... needs refresh")
                         new_token = await self.token_manager.refresh_token(token)
                         if new_token:
                             token = new_token
-                            logger.info(f"[✅] Token refreshed successfully")
+                            logger.info("Token refreshed successfully")
                         else:
-                            logger.error(f"[❌] Failed to refresh token {token[:8]}...")
+                            logger.error(f"Failed to refresh token {token[:8]}...")
                             await asyncio.sleep(60)  # Wait before retry
                             continue
                     
                     # Check consecutive failures
                     if self.consecutive_failures.get(token, 0) >= self.max_consecutive_failures:
-                        logger.error(f"[⛔] Too many consecutive failures for {token[:8]}..., pausing worker")
+                        logger.error(f"Too many consecutive failures for token {token[:8]}..., pausing worker")
                         await asyncio.sleep(300)  # 5 minute cooldown
                         self.consecutive_failures[token] = 0
                         continue
@@ -395,6 +530,12 @@ class NebulAIMiner:
                     # Submit results
                     submitted = await self.submit_results(session, token, results[0], results[1], task_data["task_id"])
                     
+                    # Show stats periodically
+                    current_time = time.time()
+                    if current_time - stats.last_stats_display > 300:  # Every 5 minutes
+                        stats.log_stats()
+                        stats.last_stats_display = current_time
+                    
                     # Adaptive delay based on success
                     if submitted:
                         await asyncio.sleep(0.5)
@@ -402,31 +543,28 @@ class NebulAIMiner:
                         await asyncio.sleep(3)
                     
                 except Exception as e:
-                    logger.error(f"[💥] Unexpected error in worker loop: {str(e)}")
+                    logger.error(f"Unexpected error in worker loop: {str(e)}")
                     await asyncio.sleep(10)
 
-    def print_stats(self):
-        """Print mining statistics"""
-        print("\n" + "="*50)
-        print("📊 MINING STATISTICS")
-        print("="*50)
+    def print_final_stats(self):
+        """Print final mining statistics"""
+        print(f"\n{Fore.CYAN}{'='*60}")
+        print(f"{Fore.YELLOW}📊 FINAL MINING REPORT")
+        print(f"{Fore.CYAN}{'='*60}")
         
-        for token, stats in self.session_stats.items():
-            runtime = time.time() - stats["start_time"]
-            success_rate = stats["success"] / (stats["success"] + stats["failure"]) * 100 if (stats["success"] + stats["failure"]) > 0 else 0
+        for token, session_stats in self.session_stats.items():
+            runtime = time.time() - session_stats["start_time"]
+            success_rate = session_stats["success"] / (session_stats["success"] + session_stats["failure"]) * 100 if (session_stats["success"] + session_stats["failure"]) > 0 else 0
             
-            print(f"\nToken: {token[:8]}...")
-            print(f"  ✅ Success: {stats['success']}")
-            print(f"  ❌ Failure: {stats['failure']}")
-            print(f"  📈 Success Rate: {success_rate:.1f}%")
-            print(f"  ⏱️  Runtime: {runtime/3600:.1f} hours")
+            print(f"\n{Fore.MAGENTA}Token: {token[:8]}...")
+            print(f"  {Fore.GREEN}✅ Success: {session_stats['success']}")
+            print(f"  {Fore.RED}❌ Failure: {session_stats['failure']}")
+            print(f"  {Fore.YELLOW}📈 Success Rate: {success_rate:.1f}%")
+            print(f"  {Fore.CYAN}⏱️  Runtime: {runtime/3600:.1f} hours")
 
 async def main():
     """Main entry point"""
-    print("\n🚀 NebulAI Mining Script v2.0")
-    print("================================")
-    print("⚠️  Remember: This script violates NebulAI ToS!")
-    print("⚠️  Use at your own risk!\n")
+    print_mining_header()
     
     # Check for required files
     if not os.path.exists(".env"):
@@ -442,7 +580,10 @@ async def main():
         logger.error("No valid tokens found!")
         return
     
-    logger.info(f"Found {len(tokens)} tokens to mine with")
+    # Update global stats
+    stats.active_tokens = len(tokens)
+    
+    logger.info(f"🎯 Initialized {len(tokens)} machine")
     
     # Initialize miner
     miner = NebulAIMiner(token_manager)
@@ -450,13 +591,13 @@ async def main():
     # Create tasks for all tokens
     tasks = [miner.worker_loop(token) for token in tokens]
     
-    # Add periodic stats printing
-    async def print_stats_periodically():
+    # Add periodic stats display
+    async def stats_display_loop():
         while True:
-            await asyncio.sleep(300)  # Print stats every 5 minutes
-            miner.print_stats()
+            await asyncio.sleep(300)  # Every 5 minutes
+            stats.log_stats()
     
-    tasks.append(print_stats_periodically())
+    tasks.append(stats_display_loop())
     
     # Add token refresh scheduler
     async def token_refresh_scheduler():
@@ -470,11 +611,13 @@ async def main():
     try:
         await asyncio.gather(*tasks)
     except KeyboardInterrupt:
-        logger.info("\n⛔ Mining stopped by user")
-        miner.print_stats()
+        logger.info("⛔ Mining stopped by user")
+        miner.print_final_stats()
+        print_mining_footer()
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("\n👋 Goodbye!")
+        print_mining_footer()
+        print(f"{Fore.CYAN}👋 NebulAI Miner v2.0.1 - DiPY™")

@@ -6,14 +6,17 @@ cryptography==41.0.7
 python-dotenv==1.0.0
 PyJWT==2.8.0
 
-# Solana libraries (hypothetical - these would be needed for real implementation)
+# Enhanced logging and colors
+colorama==0.4.6
+colorlog==6.8.0
+
+# Optional monitoring
+prometheus-client==0.19.0
+
+# Solana libraries
 # solana==0.30.2
 # solders==0.18.1
 # base58==2.1.1
-
-# Optional monitoring and logging
-colorlog==6.8.0
-prometheus-client==0.19.0
 
 # Development dependencies
 pytest==7.4.3

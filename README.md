@@ -4,7 +4,9 @@
 
 **Created by [DiPY™](https://x.com/BlockClaimed) for the blockchain development community**
 
-**🔗 Experience NebulAI:** [bit.ly/nebulai_opencompute](https://bit.ly/nebulai_opencompute)
+**Credit goes to [borckesd](https://github.com/borckesd/nebulai-miner)**
+
+**🔗 Experience NebulAI:** [NebulAI Open Compute](https://bit.ly/nebulai_opencompute)
 
 ## 🚨 LEGAL DISCLAIMER 🚨
 
@@ -56,6 +58,9 @@ This suite provides a comprehensive solution for automating NebulAI mining opera
 
 ### 2. Installation
 ```bash
+# Clone the repository
+git clone https://github.com/laldinpuia/NebulAI-Auto
+
 # Create virtual environment (recommended)
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
@@ -100,6 +105,41 @@ python monitor.py
 python token_utility.py check
 ```
 
+## System Health Check
+
+Before running the miner, use the health check utility to verify your setup:
+
+```bash
+python health_check.py
+```
+
+![Health Check](./assets/health_check.png)
+
+The health check validates:
+- Python version compatibility
+- Required dependencies installation
+- Environment configuration
+- Token file existence
+- Network connectivity to NebulAI
+- File permissions security
+
+## Real-Time Monitoring
+
+Monitor your mining operations with the built-in dashboard:
+
+```bash
+python monitor.py
+```
+
+![Mining Monitor](./assets/mining_monitor.png)
+
+The monitor displays:
+- Overall mining statistics and uptime
+- Success/failure rates in real-time
+- Per-token performance metrics
+- Last activity timestamps
+- Live success rate calculations
+
 ## Token Management
 
 ```bash
@@ -115,6 +155,15 @@ python token_utility.py add --token "eyJ..."
 # Decode token payload
 python token_utility.py decode --token "eyJ..."
 ```
+
+![Token Analysis](./assets/token_analysis.png)
+
+The token utility provides:
+- Token validity verification
+- Expiration date analysis
+- Time remaining calculations
+- Payload inspection
+- Batch token management
 
 ## Security Features
 
